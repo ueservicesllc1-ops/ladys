@@ -263,20 +263,20 @@ const PersonDetail = () => {
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.25 }}
-            className="bg-white rounded-2xl shadow-xl p-4 mb-4 border border-palette-lavender/20"
+            className="bg-white rounded-2xl shadow-xl p-3 mb-4 border border-palette-lavender/20"
           >
-            <h3 className="text-lg font-display font-bold text-palette-graphite mb-3 text-center">
+            <h3 className="text-sm font-display font-bold text-palette-graphite mb-2 text-center">
               ¿Conoces a esta lady?
             </h3>
             
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-2">
               {/* Botón Sí */}
               <motion.button
                 onClick={() => handleVote('si')}
                 disabled={voting || userVote !== null}
                 whileHover={!voting && !userVote ? { scale: 1.05 } : {}}
                 whileTap={!voting && !userVote ? { scale: 0.95 } : {}}
-                className={`flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-lg font-medium transition ${
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg font-medium transition ${
                   userVote === 'si'
                     ? 'bg-green-500 text-white'
                     : userVote === 'no'
@@ -284,10 +284,10 @@ const PersonDetail = () => {
                     : 'bg-green-100 hover:bg-green-200 text-green-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <ThumbsUp className={`w-5 h-5 ${userVote === 'si' ? 'text-white' : 'text-green-600'}`} />
-                <span className="text-sm font-semibold">Sí</span>
+                <ThumbsUp className={`w-4 h-4 ${userVote === 'si' ? 'text-white' : 'text-green-600'}`} />
+                <span className="text-xs font-semibold">Sí</span>
                 {person.conocidaSi > 0 && (
-                  <span className="text-xs font-medium opacity-80">({person.conocidaSi || 0})</span>
+                  <span className="text-[10px] font-medium opacity-80">({person.conocidaSi || 0})</span>
                 )}
               </motion.button>
 
@@ -297,7 +297,7 @@ const PersonDetail = () => {
                 disabled={voting || userVote !== null}
                 whileHover={!voting && !userVote ? { scale: 1.05 } : {}}
                 whileTap={!voting && !userVote ? { scale: 0.95 } : {}}
-                className={`flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-lg font-medium transition ${
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg font-medium transition ${
                   userVote === 'no'
                     ? 'bg-red-500 text-white'
                     : userVote === 'si'
@@ -305,10 +305,10 @@ const PersonDetail = () => {
                     : 'bg-red-100 hover:bg-red-200 text-red-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                <ThumbsDown className={`w-5 h-5 ${userVote === 'no' ? 'text-white' : 'text-red-600'}`} />
-                <span className="text-sm font-semibold">No</span>
+                <ThumbsDown className={`w-4 h-4 ${userVote === 'no' ? 'text-white' : 'text-red-600'}`} />
+                <span className="text-xs font-semibold">No</span>
                 {person.conocidaNo > 0 && (
-                  <span className="text-xs font-medium opacity-80">({person.conocidaNo || 0})</span>
+                  <span className="text-[10px] font-medium opacity-80">({person.conocidaNo || 0})</span>
                 )}
               </motion.button>
             </div>
@@ -317,7 +317,7 @@ const PersonDetail = () => {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center text-palette-graphite/70 text-sm mt-3"
+                className="text-center text-palette-graphite/70 text-xs mt-2"
               >
                 {userVote === 'si' ? '✓ Votaste: Sí' : '✓ Votaste: No'}
               </motion.p>

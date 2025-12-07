@@ -94,11 +94,6 @@ const AddPersonForm = () => {
       return;
     }
 
-    if (photos.length === 0) {
-      await showAlert('Por favor agrega al menos una foto', 'Fotos Requeridas', 'warning');
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -107,8 +102,10 @@ const AddPersonForm = () => {
         ...formData,
       });
 
-      // Subir todas las fotos a B2
-      await uploadPhotos(personId, photos);
+      // Subir todas las fotos a B2 (solo si hay fotos)
+      if (photos.length > 0) {
+        await uploadPhotos(personId, photos);
+      }
 
       // Éxito
       await showAlert(
@@ -252,7 +249,7 @@ const AddPersonForm = () => {
           {/* Fotos */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Fotos * (Mínimo 1)
+              Fotos (Opcional)
             </label>
             <div className="space-y-4">
               {/* Preview de fotos */}
