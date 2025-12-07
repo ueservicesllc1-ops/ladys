@@ -133,12 +133,12 @@ const PersonDetail = () => {
   const fotos = person.fotos || [];
 
   return (
-    <div className="min-h-screen pb-24 max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
+    <div className="min-h-screen pb-24">
       {/* Header */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full bg-palette-gold/80 backdrop-blur-lg shadow-lg sticky top-0 z-50 border-b border-palette-quartz/40 relative"
+        className="w-full bg-palette-gold/80 backdrop-blur-lg shadow-lg fixed top-0 left-0 right-0 z-50 border-b border-palette-quartz/40"
       >
         <div className="w-full relative">
           <img 
@@ -159,7 +159,8 @@ const PersonDetail = () => {
         <ShieldButton />
       </motion.div>
 
-      <div className="container mx-auto px-4 py-6">
+      {/* Contenido con padding-top para compensar el header fijo */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 pt-32 md:pt-36 pb-6">
         {/* Foto principal */}
         {fotos.length > 0 ? (
           <motion.div
