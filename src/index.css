@@ -70,3 +70,17 @@ select.city-select option {
   padding: 8px 4px;
 }
 
+/* Estilos para desktop - Contenedor principal con ancho máximo */
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    justify-content: center;
+  }
+  
+  #root {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+

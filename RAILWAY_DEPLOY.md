@@ -65,11 +65,17 @@ Esto está configurado en `railway.json` y `railway.toml`.
 2. Espera a que el build termine
 3. Railway asignará una URL pública (ej: `https://infieles-production.up.railway.app`)
 
-### 6. Configurar Dominio Personalizado (Opcional)
+### 6. Configurar Dominio Personalizado
 
 1. Ve a **Settings** → **Domains**
-2. Agrega tu dominio personalizado
-3. Configura los registros DNS según las instrucciones de Railway
+2. Agrega tu dominio personalizado: `infieles.website`
+3. Configura los registros DNS según las instrucciones de Railway:
+   - **Tipo**: CNAME
+   - **Nombre**: @ o infieles
+   - **Valor**: El dominio que Railway te proporcione (ej: `xxx.up.railway.app`)
+4. **IMPORTANTE**: Después de configurar el dominio en Railway, agrégalo también en Firebase:
+   - Ve a Firebase Console → Authentication → Settings → Authorized domains
+   - Agrega: `infieles.website`
 
 ## 🔧 Configuración Adicional
 

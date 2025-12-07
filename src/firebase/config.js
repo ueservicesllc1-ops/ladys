@@ -5,15 +5,15 @@ import { getAnalytics } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
 import { getMessaging, isSupported } from 'firebase/messaging';
 
-// Configuración de Firebase
+// Configuración de Firebase desde variables de entorno o valores por defecto
 const firebaseConfig = {
-  apiKey: "AIzaSyCTMcvvzi7q0lgDm2NfEa4OTDdbh9_iKzE",
-  authDomain: "infieles-29223.firebaseapp.com",
-  projectId: "infieles-29223",
-  storageBucket: "infieles-29223.firebasestorage.app",
-  messagingSenderId: "588069651968",
-  appId: "1:588069651968:web:c671adbbbf1af13dbc3ae5",
-  measurementId: "G-6GNBHWCNKQ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCTMcvvzi7q0lgDm2NfEa4OTDdbh9_iKzE",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "infieles-29223.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "infieles-29223",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "infieles-29223.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "588069651968",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:588069651968:web:c671adbbbf1af13dbc3ae5",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-6GNBHWCNKQ"
 };
 
 // Initialize Firebase

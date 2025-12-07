@@ -1,0 +1,25 @@
+{
+  "_comment": "Variables de Entorno Completas para Railway",
+  "_domain_info": "Dominio: infieles.website - Configurar en Railway Dashboard y agregar en Firebase Authorized domains",
+  
+  "APP_DOMAIN": "infieles.website",
+  "RAILWAY_DOMAIN": "ladys-production.up.railway.app",
+  
+  "B2_KEY_ID": "005c2b526be0baa0000000026",
+  "B2_APPLICATION_KEY": "K005jZQmHXremE1cYJUNwzK0lajLXZo",
+  "B2_BUCKET_NAME": "infieles",
+  "B2_ENDPOINT": "https://s3.us-east-005.backblazeb2.com",
+  "B2_REGION": "us-east-005",
+  "B2_PUBLIC_FILE_ID": "f005",
+  
+  "VITE_FIREBASE_API_KEY": "AIzaSyCTMcvvzi7q0lgDm2NfEa4OTDdbh9_iKzE",
+  "VITE_FIREBASE_AUTH_DOMAIN": "infieles-29223.firebaseapp.com",
+  "VITE_FIREBASE_PROJECT_ID": "infieles-29223",
+  "VITE_FIREBASE_STORAGE_BUCKET": "infieles-29223.firebasestorage.app",
+  "VITE_FIREBASE_MESSAGING_SENDER_ID": "588069651968",
+  "VITE_FIREBASE_APP_ID": "1:588069651968:web:c671adbbbf1af13dbc3ae5",
+  "VITE_FIREBASE_MEASUREMENT_ID": "G-6GNBHWCNKQ",
+  
+  "_firebase_admin_note": "FIREBASE_SERVICE_ACCOUNT es opcional - solo si necesitas gestión de usuarios en el panel admin"
+}
+

@@ -146,7 +146,7 @@ const PersonList = () => {
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-white/90 backdrop-blur-md mx-4 mt-4 rounded-2xl shadow-lg p-3 border border-palette-lavender/20"
+        className="bg-white/90 backdrop-blur-md mx-4 md:mx-6 lg:mx-8 mt-4 rounded-2xl shadow-lg p-3 md:p-4 border border-palette-lavender/20 max-w-7xl mx-auto lg:mx-auto"
       >
         <div className="flex items-center gap-2">
           {/* Buscador */}
@@ -241,8 +241,9 @@ const PersonList = () => {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="container mx-auto px-4 py-4 space-y-2"
+        className="container mx-auto px-4 py-4 md:px-6 lg:px-8"
       >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredPersons.length === 0 && persons.length > 0 ? (
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -297,9 +298,9 @@ const PersonList = () => {
               <Link to={`/person/${person.id}`}>
                 <div className="bg-palette-pearl backdrop-blur-md rounded-xl shadow-lg p-3 flex items-center gap-3 overflow-hidden relative group border border-palette-lavender/30">
                   {/* Imagen de perfil */}
-                  <div className="relative flex-shrink-0">
+                  <div className="relative flex-shrink-0 w-full md:w-auto lg:w-full flex justify-center">
                     <motion.div
-                      className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-palette-lavender via-palette-quartz to-palette-gold flex items-center justify-center border-2 border-palette-pearl"
+                      className="w-20 h-20 md:w-16 md:h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden bg-gradient-to-br from-palette-lavender via-palette-quartz to-palette-gold flex items-center justify-center border-2 border-palette-pearl"
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.5 }}
                     >
@@ -310,7 +311,7 @@ const PersonList = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <User className="w-7 h-7 text-palette-graphite" />
+                        <User className="w-10 h-10 md:w-8 md:h-8 lg:w-12 lg:h-12 text-palette-graphite" />
                       )}
                     </motion.div>
                     <motion.div
@@ -327,9 +328,9 @@ const PersonList = () => {
                   </div>
 
                   {/* Información */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-lg font-display font-bold text-gray-800 truncate">
+                  <div className="flex-1 min-w-0 w-full md:w-auto lg:w-full text-center md:text-left lg:text-center">
+                    <div className="flex items-center justify-center md:justify-start lg:justify-center gap-2 flex-wrap">
+                      <h2 className="text-base md:text-lg lg:text-xl font-display font-bold text-gray-800 truncate w-full md:w-auto">
                         {person.nombre} {person.apellido}
                       </h2>
                       {/* Contador de votos */}
@@ -374,6 +375,7 @@ const PersonList = () => {
             </motion.div>
           ))
         )}
+        </div>
       </motion.div>
 
     </div>

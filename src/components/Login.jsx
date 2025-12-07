@@ -122,7 +122,7 @@ const Login = () => {
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border border-palette-lavender/20"
+        className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 max-w-md md:max-w-lg w-full border border-palette-lavender/20"
       >
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-palette-lavender via-palette-quartz to-palette-gold rounded-full flex items-center justify-center mx-auto mb-4">

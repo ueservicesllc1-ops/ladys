@@ -1,0 +1,64 @@
+===========================================
+VARIABLES DE ENTORNO COMPLETAS PARA RAILWAY
+===========================================
+
+DOMINIO PRINCIPAL: infieles.website
+(Configurar en Railway Dashboard → Settings → Domains)
+(Agregar en Firebase → Authentication → Settings → Authorized domains)
+
+===========================================
+BACKBLAZE B2 (6 variables - OBLIGATORIAS)
+===========================================
+
+B2_KEY_ID=005c2b526be0baa0000000026
+B2_APPLICATION_KEY=K005jZQmHXremE1cYJUNwzK0lajLXZo
+B2_BUCKET_NAME=infieles
+B2_ENDPOINT=https://s3.us-east-005.backblazeb2.com
+B2_REGION=us-east-005
+B2_PUBLIC_FILE_ID=f005
+
+===========================================
+FIREBASE/FIRESTORE (7 variables - OBLIGATORIAS)
+===========================================
+
+VITE_FIREBASE_API_KEY=AIzaSyCTMcvvzi7q0lgDm2NfEa4OTDdbh9_iKzE
+VITE_FIREBASE_AUTH_DOMAIN=infieles-29223.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=infieles-29223
+VITE_FIREBASE_STORAGE_BUCKET=infieles-29223.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=588069651968
+VITE_FIREBASE_APP_ID=1:588069651968:web:c671adbbbf1af13dbc3ae5
+VITE_FIREBASE_MEASUREMENT_ID=G-6GNBHWCNKQ
+
+===========================================
+FIREBASE ADMIN SDK (1 variable - OPCIONAL)
+===========================================
+
+FIREBASE_SERVICE_ACCOUNT={"type":"service_account","project_id":"infieles-29223",...}
+(Reemplaza ... con el contenido completo de tu serviceAccountKey.json en una sola línea)
+
+===========================================
+RESUMEN
+===========================================
+
+Total de variables obligatorias: 13
+- Backblaze B2: 6
+- Firebase/Firestore: 7
+
+Total de variables opcionales: 1
+- Firebase Admin SDK: 1 (solo si necesitas gestión de usuarios)
+
+===========================================
+DOMINIOS A CONFIGURAR
+===========================================
+
+1. Railway Dashboard → Settings → Domains
+   - Agregar: infieles.website
+   - Configurar DNS según instrucciones
+
+2. Firebase Console → Authentication → Settings → Authorized domains
+   - Agregar: ladys-production.up.railway.app
+   - Agregar: infieles.website
+   - (localhost ya está incluido por defecto)
+
+===========================================
+
