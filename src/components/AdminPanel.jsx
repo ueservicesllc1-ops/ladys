@@ -1,0 +1,866 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Shield, Users, Trash2, Edit, X, Bell, CheckCircle, Eye, Send, UserX } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { useDialog } from '../contexts/DialogContext';
+import { getPersons } from '../firebase/persons';
+import { doc, deleteDoc, updateDoc, query, where, getDocs, collection } from 'firebase/firestore';
+import { db } from '../firebase/config';
+import { getAllTokens } from '../services/pushNotifications';
+
+const AdminPanel = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { showAlert, showConfirm } = useDialog();
+  const [persons, setPersons] = useState([]);
+  const [pendingPersons, setPendingPersons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [pinVerified, setPinVerified] = useState(false);
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [showPending, setShowPending] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [showPushModal, setShowPushModal] = useState(false);
+  const [pushTitle, setPushTitle] = useState('');
+  const [pushBody, setPushBody] = useState('');
+  const [pushSending, setPushSending] = useState(false);
+  const [fcmTokens, setFcmTokens] = useState([]);
+  const [showUsers, setShowUsers] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState(null);
+  const [usersCount, setUsersCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+    // Solo cargar personas si el PIN está verificado
+    if (pinVerified) {
+      loadPersons();
+      loadFcmTokens();
+      loadUsersCount();
+      // Actualizar contador de usuarios cada 30 segundos
+      const usersCountInterval = setInterval(() => {
+        loadUsersCount();
+      }, 30000);
+      return () => clearInterval(usersCountInterval);
+    } else {
+      // Si no está verificado, asegurar que no hay datos
+      setPersons([]);
+      setPendingPersons([]);
+      setFcmTokens([]);
+      setUsersCount(0);
+      setLoading(false);
+    }
+  }, [user, navigate, pinVerified]);
+
+  const loadFcmTokens = async () => {
+    try {
+      const tokens = await getAllTokens();
+      setFcmTokens(tokens);
+    } catch (error) {
+      console.error('Error cargando tokens FCM:', error);
+    }
+  };
+
+  const handlePinSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (pin === '1619') {
+      setPinVerified(true);
+      setPin('');
+    } else {
+      setError('PIN incorrecto');
+    }
+  };
+
+  const loadPersons = async () => {
+    try {
+      setLoading(true);
+      const data = await getPersons();
+      setPersons(data);
+      
+      // Cargar ladys pendientes de aprobación
+      const q = query(collection(db, 'persons'), where('approved', '==', false));
+      const querySnapshot = await getDocs(q);
+      const pending = [];
+      querySnapshot.forEach((doc) => {
+        pending.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      setPendingPersons(pending);
+    } catch (error) {
+      console.error('Error cargando personas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (personId) => {
+    try {
+      const personRef = doc(db, 'persons', personId);
+      await updateDoc(personRef, {
+        approved: true
+      });
+      await loadPersons();
+      await showAlert('Lady aprobada exitosamente', 'Éxito', 'success');
+    } catch (error) {
+      console.error('Error aprobando persona:', error);
+      await showAlert('Error al aprobar la lady', 'Error', 'error');
+    }
+  };
+
+  const handleSendPush = async () => {
+    if (!pushTitle.trim() || !pushBody.trim()) {
+      await showAlert('Por favor completa el título y el mensaje', 'Información', 'warning');
+      return;
+    }
+
+    if (fcmTokens.length === 0) {
+      await showAlert('No hay dispositivos registrados para recibir notificaciones', 'Información', 'warning');
+      return;
+    }
+
+    try {
+      setPushSending(true);
+      const tokens = fcmTokens.map(t => t.token);
+
+      const response = await fetch('http://localhost:3001/api/send-push', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tokens,
+          title: pushTitle,
+          body: pushBody,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        await showAlert(
+          `Notificación enviada: ${result.sent} exitosas, ${result.failed} fallidas`,
+          'Notificación Enviada',
+          'success'
+        );
+        setPushTitle('');
+        setPushBody('');
+        setShowPushModal(false);
+      } else {
+        await showAlert(`Error: ${result.error || 'Error desconocido'}`, 'Error', 'error');
+      }
+    } catch (error) {
+      console.error('Error enviando push:', error);
+      await showAlert('Error al enviar la notificación. Verifica que el servidor esté corriendo.', 'Error', 'error');
+    } finally {
+      setPushSending(false);
+    }
+  };
+
+  const handleDelete = async (personId, personName) => {
+    const confirmed = await showConfirm(
+      `¿Estás seguro de eliminar a ${personName}?`,
+      'Confirmar Eliminación'
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'persons', personId));
+      await loadPersons();
+      await showAlert('Lady eliminada exitosamente', 'Éxito', 'success');
+    } catch (error) {
+      console.error('Error eliminando persona:', error);
+      await showAlert('Error al eliminar la lady', 'Error', 'error');
+    }
+  };
+
+  const loadUsersCount = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/users');
+      const result = await response.json();
+      
+      if (response.ok) {
+        setUsersCount(result.users?.length || 0);
+      } else {
+        // Silenciar errores para no interrumpir la experiencia
+        console.error('Error cargando contador de usuarios:', result.error);
+      }
+    } catch (error) {
+      // Silenciar errores para no interrumpir la experiencia
+      console.error('Error cargando contador de usuarios:', error);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const response = await fetch('http://localhost:3001/api/users');
+      const result = await response.json();
+      
+      if (response.ok) {
+        setUsers(result.users || []);
+        setUsersCount(result.users?.length || 0); // Actualizar contador también
+      } else {
+        await showAlert(`Error: ${result.error || 'Error al cargar usuarios'}`, 'Error', 'error');
+        setUsers([]);
+      }
+    } catch (error) {
+      console.error('Error cargando usuarios:', error);
+      await showAlert('Error al cargar usuarios. Verifica que el servidor esté corriendo.', 'Error', 'error');
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (uid, email) => {
+    const confirmed = await showConfirm(
+      `¿Estás seguro de eliminar al usuario ${email}? Esta acción no se puede deshacer.`,
+      'Confirmar Eliminación'
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingUserId(uid);
+      const response = await fetch(`http://localhost:3001/api/users/${uid}`, {
+        method: 'DELETE',
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        await showAlert('Usuario eliminado exitosamente', 'Éxito', 'success');
+        await loadUsers(); // Recargar lista
+      } else {
+        await showAlert(`Error: ${result.error || 'Error al eliminar usuario'}`, 'Error', 'error');
+      }
+    } catch (error) {
+      console.error('Error eliminando usuario:', error);
+      await showAlert('Error al eliminar usuario. Verifica que el servidor esté corriendo.', 'Error', 'error');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  // Si el PIN no está verificado, mostrar pantalla en blanco con modal de PIN
+  if (!pinVerified) {
+    return (
+      <div className="min-h-screen bg-palette-pearl flex items-center justify-center p-4">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full border border-palette-lavender/20"
+        >
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-palette-lavender to-palette-quartz rounded-full flex items-center justify-center mx-auto mb-4">
+              <Shield className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-display font-bold text-palette-graphite mb-2">
+              Acceso Protegido
+            </h2>
+            <p className="text-sm text-palette-graphite/60">
+              Ingresa el PIN para acceder al panel de administrador
+            </p>
+          </div>
+
+          <form onSubmit={handlePinSubmit} className="space-y-4">
+            <div>
+              <input
+                type="password"
+                value={pin}
+                onChange={(e) => {
+                  setPin(e.target.value);
+                  setError('');
+                }}
+                placeholder="PIN"
+                maxLength="4"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-palette-lavender focus:outline-none transition text-center text-2xl tracking-widest"
+                autoFocus
+              />
+              {error && (
+                <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+              )}
+            </div>
+
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gradient-to-r from-palette-lavender to-palette-quartz text-palette-graphite py-3 rounded-xl font-medium shadow-lg"
+            >
+              Verificar PIN
+            </motion.button>
+          </form>
+
+          <motion.button
+            onClick={() => navigate('/')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full mt-4 text-palette-graphite/60 hover:text-palette-graphite text-sm"
+          >
+            Volver
+          </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 border-4 border-palette-lavender border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      {/* Header */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="w-full bg-gradient-to-r from-palette-lavender via-palette-quartz to-palette-gold backdrop-blur-lg shadow-lg sticky top-0 z-50 border-b border-palette-quartz/40"
+      >
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navigate('/')}
+            className="w-10 h-10 bg-palette-pearl/90 rounded-full flex items-center justify-center shadow-lg"
+          >
+            <ArrowLeft className="w-5 h-5 text-palette-graphite" />
+          </motion.button>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-palette-pearl/90 rounded-full flex items-center justify-center">
+              <Shield className="w-6 h-6 text-palette-gold" />
+            </div>
+            <div>
+              <h1 className="text-xl font-display font-bold text-palette-graphite">
+                Panel de Administrador
+              </h1>
+              <p className="text-sm text-palette-graphite/60">
+                Gestión de ladys
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="container mx-auto px-4 py-6">
+        {/* Estadísticas */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-palette-pearl rounded-2xl shadow-lg p-6 mb-6 border border-palette-lavender/20"
+        >
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Contador de Ladies */}
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-palette-lavender to-palette-quartz rounded-full flex items-center justify-center">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <p className="text-3xl font-display font-bold text-palette-graphite">
+                  {persons.length}
+                </p>
+                <p className="text-sm text-palette-graphite/60">
+                  {persons.length === 1 ? 'Lady registrada' : 'Ladys registradas'}
+                </p>
+              </div>
+            </div>
+
+            {/* Contador de Usuarios */}
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-palette-quartz to-palette-gold rounded-full flex items-center justify-center">
+                <UserX className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <p className="text-3xl font-display font-bold text-palette-graphite">
+                  {usersCount}
+                </p>
+                <p className="text-sm text-palette-graphite/60">
+                  {usersCount === 1 ? 'Usuario registrado' : 'Usuarios registrados'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="grid grid-cols-4 gap-2">
+            <motion.button
+              onClick={() => setShowPushModal(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-palette-lavender to-palette-quartz text-palette-graphite py-3 rounded-xl font-medium shadow-lg text-sm"
+            >
+              <Bell className="w-4 h-4" />
+              <span>Push</span>
+            </motion.button>
+
+            <motion.button
+              onClick={() => {
+                const newShowUsers = !showUsers;
+                setShowUsers(newShowUsers);
+                setShowPending(false);
+                setShowAll(false);
+                if (newShowUsers) {
+                  loadUsers();
+                }
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center justify-center gap-2 py-3 rounded-xl font-medium shadow-lg text-sm ${
+                showUsers 
+                  ? 'bg-gradient-to-r from-palette-quartz to-palette-gold text-palette-graphite' 
+                  : 'bg-gradient-to-r from-palette-quartz/50 to-palette-gold/50 text-palette-graphite'
+              }`}
+            >
+              <UserX className="w-4 h-4" />
+              <span>Usuarios</span>
+            </motion.button>
+
+            <motion.button
+              onClick={() => {
+                setShowPending(!showPending);
+                setShowAll(false);
+                setShowUsers(false);
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center justify-center gap-2 py-3 rounded-xl font-medium shadow-lg relative text-sm ${
+                showPending 
+                  ? 'bg-gradient-to-r from-palette-quartz to-palette-gold text-palette-graphite' 
+                  : 'bg-gradient-to-r from-palette-quartz/50 to-palette-gold/50 text-palette-graphite'
+              }`}
+            >
+              <Eye className="w-4 h-4" />
+              <span>Nuevas</span>
+              {pendingPersons.length > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                  {pendingPersons.length}
+                </span>
+              )}
+            </motion.button>
+
+            <motion.button
+              onClick={() => {
+                setShowAll(!showAll);
+                setShowPending(false);
+                setShowUsers(false);
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`flex items-center justify-center gap-2 py-3 rounded-xl font-medium shadow-lg text-sm ${
+                showAll 
+                  ? 'bg-gradient-to-r from-palette-lavender to-palette-quartz text-palette-graphite' 
+                  : 'bg-gradient-to-r from-palette-lavender/50 to-palette-quartz/50 text-palette-graphite'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Todas</span>
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* Lista de todas las ladys registradas */}
+        {showAll && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="space-y-4"
+          >
+            <h2 className="text-xl font-display font-bold text-palette-graphite mb-4">
+              Todas las Ladys Registradas ({persons.length})
+            </h2>
+            {persons.length === 0 ? (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-center py-12 bg-palette-pearl rounded-2xl"
+              >
+                <p className="text-palette-graphite/80 text-lg">No hay ladys registradas</p>
+              </motion.div>
+            ) : (
+              persons.map((person, index) => (
+                <motion.div
+                  key={person.id}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-palette-pearl rounded-2xl shadow-lg p-4 border border-palette-lavender/20"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Foto */}
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-palette-lavender to-palette-quartz flex items-center justify-center">
+                      {person.fotos && person.fotos.length > 0 ? (
+                        <img
+                          src={person.fotos[0]}
+                          alt={`${person.nombre} ${person.apellido}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Users className="w-8 h-8 text-palette-graphite/40" />
+                      )}
+                    </div>
+
+                    {/* Información */}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-display font-bold text-palette-graphite">
+                        {person.nombre} {person.apellido}
+                      </h3>
+                      <p className="text-sm text-palette-graphite/60">
+                        {person.ciudad}, {person.pais}
+                      </p>
+                      {person.fotos && person.fotos.length > 0 && (
+                        <p className="text-xs text-palette-graphite/50 mt-1">
+                          {person.fotos.length} foto{person.fotos.length !== 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Botones de acción */}
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        onClick={() => navigate(`/person/${person.id}`)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-10 h-10 bg-palette-lavender/20 hover:bg-palette-lavender/30 rounded-lg flex items-center justify-center transition"
+                        title="Ver perfil"
+                      >
+                        <Eye className="w-5 h-5 text-palette-lavender" />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleDelete(person.id, `${person.nombre} ${person.apellido}`)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-10 h-10 bg-red-100 hover:bg-red-200 rounded-lg flex items-center justify-center transition"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        )}
+
+        {/* Lista de usuarios registrados */}
+        {showUsers && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="space-y-2"
+          >
+            <h2 className="text-lg font-display font-bold text-palette-graphite mb-3">
+              Usuarios Registrados ({users.length})
+            </h2>
+            {usersLoading ? (
+              <div className="flex items-center justify-center py-8 bg-palette-pearl rounded-xl">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-10 h-10 border-4 border-palette-lavender border-t-transparent rounded-full"
+                />
+              </div>
+            ) : users.length === 0 ? (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-center py-8 bg-palette-pearl rounded-xl"
+              >
+                <p className="text-palette-graphite/80">No hay usuarios registrados</p>
+              </motion.div>
+            ) : (
+              users.map((user, index) => (
+                <motion.div
+                  key={user.uid}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="bg-palette-pearl rounded-xl shadow-md p-2.5 border border-palette-lavender/20"
+                >
+                  <div className="flex items-center gap-2.5">
+                    {/* Foto/Avatar */}
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-palette-lavender to-palette-quartz flex items-center justify-center flex-shrink-0">
+                      {user.photoURL ? (
+                        <img
+                          src={user.photoURL}
+                          alt={user.email}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Users className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+
+                    {/* Información */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-display font-bold text-palette-graphite truncate">
+                        {user.displayName || user.email}
+                      </h3>
+                      <p className="text-xs text-palette-graphite/60 truncate">
+                        {user.email}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {user.emailVerified && (
+                          <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                            ✓
+                          </span>
+                        )}
+                        {user.lastSignInTime && (
+                          <span className="text-xs text-palette-graphite/50 truncate">
+                            {new Date(user.lastSignInTime).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Botón eliminar */}
+                    <motion.button
+                      onClick={() => handleDeleteUser(user.uid, user.email)}
+                      disabled={deletingUserId === user.uid}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="w-8 h-8 bg-red-100 hover:bg-red-200 rounded-lg flex items-center justify-center transition disabled:opacity-50 flex-shrink-0"
+                      title="Eliminar usuario"
+                    >
+                      {deletingUserId === user.uid ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full"
+                        />
+                      ) : (
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                      )}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        )}
+
+        {/* Lista de ladys pendientes de aprobación */}
+        {showPending && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="space-y-4"
+          >
+            <h2 className="text-xl font-display font-bold text-palette-graphite mb-4">
+              Ladys Pendientes de Aprobación ({pendingPersons.length})
+            </h2>
+            {pendingPersons.length === 0 ? (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-center py-12 bg-palette-pearl rounded-2xl"
+              >
+                <p className="text-palette-graphite/80 text-lg">No hay ladys pendientes de aprobación</p>
+              </motion.div>
+            ) : (
+              pendingPersons.map((person, index) => (
+                <motion.div
+                  key={person.id}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-palette-pearl rounded-2xl shadow-lg p-4 border border-palette-lavender/20"
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Foto */}
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-palette-lavender to-palette-quartz flex items-center justify-center">
+                      {person.fotos && person.fotos.length > 0 ? (
+                        <img
+                          src={person.fotos[0]}
+                          alt={`${person.nombre} ${person.apellido}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Users className="w-8 h-8 text-palette-graphite/40" />
+                      )}
+                    </div>
+
+                    {/* Información */}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-display font-bold text-palette-graphite">
+                        {person.nombre} {person.apellido}
+                      </h3>
+                      <p className="text-sm text-palette-graphite/60">
+                        {person.ciudad}, {person.pais}
+                      </p>
+                      {person.fotos && person.fotos.length > 0 && (
+                        <p className="text-xs text-palette-graphite/50 mt-1">
+                          {person.fotos.length} foto{person.fotos.length !== 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Botones de acción */}
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        onClick={() => navigate(`/person/${person.id}`, { state: { fromAdmin: true } })}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-10 h-10 bg-palette-lavender/20 hover:bg-palette-lavender/30 rounded-lg flex items-center justify-center transition"
+                        title="Ver perfil"
+                      >
+                        <Eye className="w-5 h-5 text-palette-lavender" />
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleDelete(person.id, `${person.nombre} ${person.apellido}`)}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        className="w-10 h-10 bg-red-100 hover:bg-red-200 rounded-lg flex items-center justify-center transition"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        )}
+      </div>
+
+      {/* Modal para enviar notificaciones push */}
+      <AnimatePresence>
+        {showPushModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => !pushSending && setShowPushModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full border border-palette-lavender/20"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-display font-bold text-palette-graphite">
+                  Enviar Notificación Push
+                </h2>
+                <motion.button
+                  onClick={() => setShowPushModal(false)}
+                  disabled={pushSending}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition"
+                >
+                  <X className="w-5 h-5 text-palette-graphite" />
+                </motion.button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-palette-graphite mb-2">
+                    Título
+                  </label>
+                  <input
+                    type="text"
+                    value={pushTitle}
+                    onChange={(e) => setPushTitle(e.target.value)}
+                    placeholder="Título de la notificación"
+                    disabled={pushSending}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-palette-lavender focus:outline-none transition text-palette-graphite"
+                    maxLength={100}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-palette-graphite mb-2">
+                    Mensaje
+                  </label>
+                  <textarea
+                    value={pushBody}
+                    onChange={(e) => setPushBody(e.target.value)}
+                    placeholder="Mensaje de la notificación"
+                    disabled={pushSending}
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-palette-lavender focus:outline-none transition text-palette-graphite resize-none"
+                    maxLength={500}
+                  />
+                </div>
+
+                <div className="bg-palette-pearl rounded-xl p-3">
+                  <p className="text-sm text-palette-graphite/60">
+                    Se enviará a <span className="font-bold text-palette-graphite">{fcmTokens.length}</span> dispositivo{fcmTokens.length !== 1 ? 's' : ''} registrado{fcmTokens.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <motion.button
+                    onClick={() => setShowPushModal(false)}
+                    disabled={pushSending}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-palette-graphite rounded-xl font-medium transition disabled:opacity-50"
+                  >
+                    Cancelar
+                  </motion.button>
+                  <motion.button
+                    onClick={handleSendPush}
+                    disabled={pushSending || !pushTitle.trim() || !pushBody.trim()}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-palette-lavender to-palette-quartz text-palette-graphite rounded-xl font-medium shadow-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {pushSending ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-5 h-5 border-2 border-palette-graphite border-t-transparent rounded-full"
+                        />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Enviar
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+};
+
+export default AdminPanel;
+

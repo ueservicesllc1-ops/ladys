@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Infieles App</string>
+    <string name="title_activity_main">Infieles App</string>
+    <string name="package_name">com.infieles.app</string>
+    <string name="custom_url_scheme">com.infieles.app</string>
+</resources>

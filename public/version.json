@@ -1,0 +1,15 @@
+{
+  "version": "1.0.2",
+  "build": 3,
+  "releaseDate": "2024-01-15",
+  "downloadUrl": "https://drive.google.com/uc?export=download&id=182TCOG7orqS_Qc5cjTkZbiDW8_Gh3rZx",
+  "updateRequired": false,
+  "updateMessage": "Nueva versión disponible con mejoras y nuevas funcionalidades.",
+  "changelog": [
+    "Campo de historia para ladies",
+    "Mejoras en el panel de administración",
+    "Gestión de usuarios mejorada",
+    "Interfaz optimizada"
+  ]
+}
+
