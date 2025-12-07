@@ -100,8 +100,12 @@ const getPublicUrl = (key) => {
 };
 
 // Configurar CORS
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? true // Permitir todos los orígenes en producción
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 
@@ -294,12 +298,17 @@ app.post('/api/send-push', async (req, res) => {
 // Endpoint para listar usuarios
 app.get('/api/users', async (req, res) => {
   try {
+    console.log('[API /users] Solicitud recibida');
+    
     if (!admin.apps.length) {
+      console.warn('[API /users] Firebase Admin no está inicializado');
       return res.status(503).json({ 
-        error: 'Firebase Admin no está configurado. Configura las credenciales de servicio.' 
+        error: 'Firebase Admin no está configurado. Configura las credenciales de servicio.',
+        success: false
       });
     }
 
+    console.log('[API /users] Obteniendo lista de usuarios...');
     const listUsersResult = await admin.auth().listUsers(1000); // Máximo 1000 usuarios
     const users = listUsersResult.users.map(user => ({
       uid: user.uid,
@@ -318,16 +327,18 @@ app.get('/api/users', async (req, res) => {
       })),
     }));
 
+    console.log(`[API /users] ${users.length} usuarios encontrados`);
     res.json({
       success: true,
       users,
       total: users.length,
     });
   } catch (error) {
-    console.error('Error listando usuarios:', error);
+    console.error('[API /users] Error listando usuarios:', error);
     res.status(500).json({
       error: 'Error al listar usuarios',
       message: error.message,
+      success: false
     });
   }
 });

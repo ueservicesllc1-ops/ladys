@@ -189,25 +189,54 @@ const AdminPanel = () => {
 
   const loadUsersCount = async () => {
     try {
-      const response = await fetch('/api/users');
-      const result = await response.json();
+      const response = await fetch('/api/users', {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
       
       if (response.ok) {
-        setUsersCount(result.users?.length || 0);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const result = await response.json();
+          if (result.success) {
+            setUsersCount(result.users?.length || 0);
+          }
+        }
       } else {
         // Silenciar errores para no interrumpir la experiencia
-        console.error('Error cargando contador de usuarios:', result.error);
+        console.warn('Error cargando contador de usuarios:', response.status);
       }
     } catch (error) {
       // Silenciar errores para no interrumpir la experiencia
-      console.error('Error cargando contador de usuarios:', error);
+      console.warn('Error cargando contador de usuarios:', error.message);
     }
   };
 
   const loadUsers = async () => {
     try {
       setUsersLoading(true);
-      const response = await fetch('/api/users');
+      
+      // Intentar hacer la petición con timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+      
+      let response;
+      try {
+        response = await fetch('/api/users', {
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('La petición tardó demasiado. El servidor puede no estar respondiendo.');
+        }
+        throw new Error('No se pudo conectar con el servidor. Verifica que el servidor esté corriendo.');
+      }
+      clearTimeout(timeoutId);
       
       // Verificar si la respuesta es JSON
       const contentType = response.headers.get('content-type');
@@ -219,18 +248,26 @@ const AdminPanel = () => {
       
       const result = await response.json();
       
-      if (response.ok) {
+      if (response.ok && result.success) {
         setUsers(result.users || []);
         setUsersCount(result.users?.length || 0); // Actualizar contador también
       } else {
-        await showAlert(`Error: ${result.error || 'Error al cargar usuarios'}`, 'Error', 'error');
+        const errorMsg = result.error || 'Error al cargar usuarios';
+        await showAlert(`Error: ${errorMsg}`, 'Error', 'error');
         setUsers([]);
       }
     } catch (error) {
       console.error('Error cargando usuarios:', error);
-      const errorMessage = error.message.includes('FIREBASE_SERVICE_ACCOUNT') 
-        ? 'Firebase Admin SDK no está configurado. Agrega FIREBASE_SERVICE_ACCOUNT en Railway.'
-        : 'Error al cargar usuarios. Verifica que el servidor esté corriendo y que FIREBASE_SERVICE_ACCOUNT esté configurado.';
+      let errorMessage = 'Error al cargar usuarios. ';
+      
+      if (error.message.includes('FIREBASE_SERVICE_ACCOUNT') || error.message.includes('Firebase Admin')) {
+        errorMessage += 'Firebase Admin SDK no está configurado. Agrega FIREBASE_SERVICE_ACCOUNT en Railway.';
+      } else if (error.message.includes('conectar') || error.message.includes('servidor')) {
+        errorMessage += 'No se pudo conectar con el servidor. Verifica que el servidor esté corriendo en Railway.';
+      } else {
+        errorMessage += 'Verifica que el servidor esté corriendo y que FIREBASE_SERVICE_ACCOUNT esté configurado.';
+      }
+      
       await showAlert(errorMessage, 'Error', 'error');
       setUsers([]);
     } finally {
