@@ -134,7 +134,7 @@ export const notifyAdminNewLady = async (ladyName, ladyCity, ladyCountry) => {
     const title = 'Nueva Lady Registrada';
     const body = `${ladyName} de ${ladyCity}, ${ladyCountry} está esperando aprobación`;
 
-    const response = await fetch('http://localhost:3001/api/send-push', {
+    const response = await fetch('/api/send-push', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

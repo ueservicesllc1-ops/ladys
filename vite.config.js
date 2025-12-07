@@ -5,10 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Proxy para el servidor de subida de B2
-      '/api/upload': {
+      // Proxy para todas las rutas de API
+      '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
     },
   },

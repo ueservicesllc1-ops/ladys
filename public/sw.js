@@ -37,16 +37,24 @@ self.addEventListener('activate', (event) => {
 
 // Estrategia: Network First, luego Cache
 self.addEventListener('fetch', (event) => {
+  // No cachear peticiones POST, PUT, DELETE, ni rutas de API
+  if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
+    return; // Dejar que la petición pase sin cachear
+  }
+  
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clonar la respuesta
-        const responseToCache = response.clone();
-        
-        caches.open(CACHE_NAME)
-          .then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+        // Solo cachear respuestas exitosas y que sean GET
+        if (response.status === 200 && event.request.method === 'GET') {
+          // Clonar la respuesta
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+        }
         
         return response;
       })

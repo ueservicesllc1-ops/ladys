@@ -55,7 +55,9 @@ if (!admin.apps.length) {
       });
       console.log('[Firebase Admin] Inicializado correctamente');
     } else {
-      throw new Error('No se encontraron credenciales válidas. Ver FIREBASE_ADMIN_SETUP.md para configurar.');
+      console.warn('[Firebase Admin] No se encontraron credenciales válidas');
+      console.warn('[Firebase Admin] Los endpoints /api/users no funcionarán');
+      console.warn('[Firebase Admin] Para habilitarlos, configura FIREBASE_SERVICE_ACCOUNT en Railway');
     }
   } catch (error) {
     console.warn('[Firebase Admin] Error inicializando:', error.message);

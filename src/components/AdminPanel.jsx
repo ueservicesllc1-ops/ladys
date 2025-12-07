@@ -62,7 +62,9 @@ const AdminPanel = () => {
       const tokens = await getAllTokens();
       setFcmTokens(tokens);
     } catch (error) {
-      console.error('Error cargando tokens FCM:', error);
+      // Silenciar errores de permisos - no es crítico para el funcionamiento
+      console.warn('No se pudieron cargar tokens FCM (puede ser por permisos):', error.message);
+      setFcmTokens([]);
     }
   };
 
@@ -131,7 +133,7 @@ const AdminPanel = () => {
       setPushSending(true);
       const tokens = fcmTokens.map(t => t.token);
 
-      const response = await fetch('http://localhost:3001/api/send-push', {
+      const response = await fetch('/api/send-push', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,7 +189,7 @@ const AdminPanel = () => {
 
   const loadUsersCount = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/users');
+      const response = await fetch('/api/users');
       const result = await response.json();
       
       if (response.ok) {
@@ -205,7 +207,16 @@ const AdminPanel = () => {
   const loadUsers = async () => {
     try {
       setUsersLoading(true);
-      const response = await fetch('http://localhost:3001/api/users');
+      const response = await fetch('/api/users');
+      
+      // Verificar si la respuesta es JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Respuesta no es JSON (probablemente HTML):', text.substring(0, 200));
+        throw new Error('El servidor no está respondiendo correctamente. Verifica que FIREBASE_SERVICE_ACCOUNT esté configurado en Railway.');
+      }
+      
       const result = await response.json();
       
       if (response.ok) {
@@ -217,7 +228,10 @@ const AdminPanel = () => {
       }
     } catch (error) {
       console.error('Error cargando usuarios:', error);
-      await showAlert('Error al cargar usuarios. Verifica que el servidor esté corriendo.', 'Error', 'error');
+      const errorMessage = error.message.includes('FIREBASE_SERVICE_ACCOUNT') 
+        ? 'Firebase Admin SDK no está configurado. Agrega FIREBASE_SERVICE_ACCOUNT en Railway.'
+        : 'Error al cargar usuarios. Verifica que el servidor esté corriendo y que FIREBASE_SERVICE_ACCOUNT esté configurado.';
+      await showAlert(errorMessage, 'Error', 'error');
       setUsers([]);
     } finally {
       setUsersLoading(false);
@@ -236,7 +250,7 @@ const AdminPanel = () => {
 
     try {
       setDeletingUserId(uid);
-      const response = await fetch(`http://localhost:3001/api/users/${uid}`, {
+      const response = await fetch(`/api/users/${uid}`, {
         method: 'DELETE',
       });
       const result = await response.json();
