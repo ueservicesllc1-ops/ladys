@@ -12,4 +12,18 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Asegurar que el service worker se copie correctamente
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'sw.js') {
+            return 'sw.js';
+          }
+          return assetInfo.name;
+        },
+      },
+    },
+  },
+  publicDir: 'public',
 })

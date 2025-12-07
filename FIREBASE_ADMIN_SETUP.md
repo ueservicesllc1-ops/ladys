@@ -1,4 +1,4 @@
-# 🔐 Configuración de Firebase Admin SDK
+ # 🔐 Configuración de Firebase Admin SDK
 
 Para que la funcionalidad de ver y eliminar usuarios funcione, necesitas configurar Firebase Admin SDK en el servidor.
 
