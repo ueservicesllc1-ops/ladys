@@ -329,7 +329,7 @@ const AdminPanel = () => {
           ciudad: 'Quito',
           edad: '28',
           ocupacion: 'Diseñadora Gráfica',
-          historia: 'Se descubrió que mantenía una relación paralela con su jefe durante 8 meses. Su pareja encontró mensajes comprometedores en su teléfono mientras ella estaba en la ducha. La relación terminó cuando él confrontó a ambos en una cena de trabajo.'
+          historia: 'Esta perra me engañó con su jefe durante 8 meses mientras yo trabajaba como un idiota para mantenerla. Un día que se metió a bañar, su teléfono sonó y vi los mensajes. "Te extraño mi amor", "cuando nos vemos de nuevo", fotos de ella desnuda que le mandaba a ese hijo de puta. Me destrozó. Confronté a ambos en una cena de trabajo y ella ni siquiera se disculpó, solo me dijo que yo no la satisfacía. 3 años de relación tirados a la basura por una zorra que se vendió por un ascenso.'
         },
         {
           nombre: 'Isabella',
@@ -339,7 +339,7 @@ const AdminPanel = () => {
           ciudad: 'Guayaquil',
           edad: '25',
           ocupacion: 'Estudiante de Medicina',
-          historia: 'Fue vista en múltiples ocasiones con diferentes hombres en lugares públicos. Su novio de 3 años recibió fotos anónimas de ella besando a otro en un bar. Cuando la confrontó, ella admitió que había estado engañándolo desde hacía 6 meses porque sentía que la relación se había vuelto aburrida.'
+          historia: 'Mi novia de 3 años resultó ser una puta. Un amigo me mandó fotos de ella besándose con otro tipo en un bar mientras yo pensaba que estaba estudiando. Cuando la confronté, me dijo que llevaba 6 meses engañándome porque "la relación se había vuelto aburrida". Seis meses mintiéndome en la cara, durmiendo conmigo después de estar con otros. Me siento usado, traicionado. Esta mujer me hizo perder la confianza en todo.'
         },
         {
           nombre: 'Sofía',
@@ -349,7 +349,7 @@ const AdminPanel = () => {
           ciudad: 'Cuenca',
           edad: '32',
           ocupacion: 'Contadora',
-          historia: 'Mantuvo una relación extramatrimonial con un compañero de trabajo durante más de un año. Su esposo descubrió la infidelidad cuando revisó el historial de ubicaciones de su teléfono y encontró que había estado en hoteles los fines de semana que decía estar visitando a su familia. La situación se complicó cuando el amante también estaba casado, creando un escándalo en su círculo social y laboral.'
+          historia: 'Mi esposa me fue infiel durante más de un año con un compañero de trabajo. Descubrí todo cuando revisé el historial de ubicaciones de su teléfono. Los fines de semana que decía estar visitando a su familia, en realidad estaba en hoteles de mierda con ese cabrón. Lo peor es que el tipo también está casado, así que destruyó dos familias. Me siento como un idiota, un año entero siendo cornudo sin saberlo. Ella me robó mi paz, mi confianza, todo. Ahora no puedo ni dormir pensando en todas las veces que me mintió a la cara.'
         },
         {
           nombre: 'Camila',
@@ -359,7 +359,7 @@ const AdminPanel = () => {
           ciudad: 'Manta',
           edad: '23',
           ocupacion: 'Influencer',
-          historia: 'Engañó a su pareja con su mejor amigo. La relación secreta duró 4 meses hasta que un amigo en común los vio juntos en un restaurante y le contó a su novio. La traición fue doble: no solo lo engañó, sino que fue con alguien cercano a ambos.'
+          historia: 'Esta zorra me engañó con mi mejor amigo. 4 meses de relación secreta entre ellos mientras yo confiaba en ambos. Un amigo en común los vio en un restaurante besándose y me lo contó. La traición fue doble: no solo me engañó, sino que fue con alguien que yo consideraba hermano. Me destrozó completamente. Perdí a mi novia y a mi mejor amigo en un solo día. Esta mujer es una basura sin valores.'
         },
         {
           nombre: 'María',
@@ -369,7 +369,7 @@ const AdminPanel = () => {
           ciudad: 'Ambato',
           edad: '30',
           ocupacion: 'Profesora',
-          historia: 'Tuvo múltiples aventuras durante su relación de 5 años. Su pareja sospechaba pero nunca tuvo pruebas hasta que encontró una aplicación de citas en su teléfono con perfiles activos. Al investigar más, descubrió que había estado usando aplicaciones de citas durante los últimos 2 años, manteniendo encuentros casuales mientras vivían juntos.'
+          historia: 'Vivíamos juntos hace 5 años y descubrí que esta perra tenía Tinder activo desde hace 2 años. Encontré su teléfono abierto y vi las conversaciones. Había estado saliendo con diferentes tipos, teniendo encuentros casuales mientras yo trabajaba para pagar nuestro departamento. Dos años siendo cornudo sin saberlo. Me siento como un idiota total. Esta mujer me usó, me mintió todos los días, durmió conmigo después de estar con otros. Es repugnante.'
         },
         {
           nombre: 'Daniela',
@@ -379,7 +379,7 @@ const AdminPanel = () => {
           ciudad: 'Loja',
           edad: '27',
           ocupacion: 'Enfermera',
-          historia: 'Se descubrió que mantenía una relación con su ex mientras estaba comprometida. Su prometido encontró mensajes de texto románticos y fotos íntimas en su computadora. La boda se canceló una semana antes de la fecha programada cuando él confrontó a ambos.'
+          historia: 'Estaba comprometido con esta mujer, la boda era en una semana. Un día que usé su computadora para trabajar, encontré mensajes con su ex. Fotos íntimas, conversaciones románticas, planes de verse. Me destrozó. Cancelé la boda, perdí todo el dinero que invertí, y ella ni siquiera se disculpó. Solo me dijo que todavía tenía sentimientos por él. Me usó, me hizo perder tiempo y dinero. Esta zorra me arruinó la vida.'
         },
         {
           nombre: 'Andrea',
@@ -389,7 +389,7 @@ const AdminPanel = () => {
           ciudad: 'Machala',
           edad: '29',
           ocupacion: 'Abogada',
-          historia: 'Fue infiel durante un viaje de trabajo. Su pareja descubrió la infidelidad cuando vio fotos en redes sociales de ella en eventos con otro hombre durante una conferencia. Al regresar, él notó cambios en su comportamiento y al revisar sus mensajes encontró conversaciones comprometedoras que confirmaron sus sospechas.'
+          historia: 'Mi novia se fue a un viaje de trabajo y me engañó con un tipo que conoció en una conferencia. Lo descubrí por fotos en Instagram donde aparecían juntos en eventos. Cuando regresó, noté que había cambiado, ya no me quería tocar. Revisé sus mensajes y encontré las conversaciones. Fotos de ellos en el hotel, mensajes de "fue increíble anoche". Me destrozó. Esta perra me traicionó en un viaje que yo pagué. Me siento usado y humillado.'
         },
         {
           nombre: 'Natalia',
@@ -399,7 +399,7 @@ const AdminPanel = () => {
           ciudad: 'Ibarra',
           edad: '26',
           ocupacion: 'Psicóloga',
-          historia: 'Mantuvo una relación paralela con un paciente durante varios meses, violando códigos éticos profesionales. Su pareja descubrió la situación cuando encontró facturas de hoteles y regalos caros que no podía explicar. La situación se complicó aún más cuando el paciente comenzó a acosarla después de que ella intentó terminar la relación.'
+          historia: 'Mi esposa es psicóloga y se acostó con uno de sus pacientes. Encontré facturas de hoteles caros y regalos que no podía explicar. Cuando la confronté, admitió que había tenido una relación con un paciente durante meses. No solo me traicionó, sino que violó códigos éticos de su profesión. Esta mujer es una basura sin moral. Me siento traicionado de la peor manera posible. Perdí todo el respeto que tenía por ella.'
         },
         {
           nombre: 'Gabriela',
@@ -409,7 +409,7 @@ const AdminPanel = () => {
           ciudad: 'Riobamba',
           edad: '31',
           ocupacion: 'Arquitecta',
-          historia: 'Engañó a su esposo con un cliente durante un proyecto de construcción. La relación comenzó como profesional pero se volvió personal durante las visitas al sitio de construcción. Su esposo descubrió la infidelidad cuando revisó los registros de llamadas y encontró conversaciones frecuentes a altas horas de la noche. La situación afectó no solo su matrimonio sino también su reputación profesional.'
+          historia: 'Mi esposa me engañó con un cliente durante un proyecto de construcción. Descubrí todo cuando revisé los registros de llamadas y vi conversaciones a las 2, 3 de la mañana. La confronté y me confesó que había estado acostándose con ese tipo durante meses. No solo me traicionó, sino que arruinó su reputación profesional. Esta zorra destruyó nuestro matrimonio y su carrera por un capricho. Me siento completamente traicionado, 7 años de matrimonio tirados a la basura.'
         },
         {
           nombre: 'Paola',
@@ -419,7 +419,7 @@ const AdminPanel = () => {
           ciudad: 'Latacunga',
           edad: '24',
           ocupacion: 'Estudiante',
-          historia: 'Tuvo una aventura de una noche que se convirtió en una relación de varios meses. Su novio descubrió la infidelidad cuando encontró mensajes en su teléfono de un número desconocido. Al investigar, descubrió que había estado viendo a esta persona regularmente, mintiendo sobre sus actividades y creando excusas elaboradas para justificar sus ausencias.'
+          historia: 'Mi novia tuvo una "aventura de una noche" que se convirtió en una relación de meses. Encontré mensajes en su teléfono de un número que no conocía. Al investigar, descubrí que había estado viendo a este tipo regularmente, mintiéndome sobre sus actividades, inventando excusas para justificar sus ausencias. Esta perra me mintió todos los días durante meses. Me siento como un idiota por haber confiado en ella. Perdí mi tiempo y mi amor con una mujer sin valores.'
         }
       ];
 
