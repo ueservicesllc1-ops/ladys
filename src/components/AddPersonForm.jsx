@@ -44,6 +44,8 @@ const AddPersonForm = () => {
     pais: 'Ecuador', // Fijo
     provincia: '',
     ciudad: '',
+    edad: '',
+    ocupacion: '',
     historia: '',
   });
   const [photos, setPhotos] = useState([]);
@@ -228,6 +230,37 @@ const AddPersonForm = () => {
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Edad (Opcional)
+              </label>
+              <input
+                type="number"
+                name="edad"
+                value={formData.edad}
+                onChange={handleInputChange}
+                min="18"
+                max="100"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-palette-lavender focus:outline-none transition"
+                placeholder="Ej: 25"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ocupación (Opcional)
+              </label>
+              <input
+                type="text"
+                name="ocupacion"
+                value={formData.ocupacion}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-palette-lavender focus:outline-none transition"
+                placeholder="Ej: Estudiante, Profesional, etc."
+              />
             </div>
           </div>
 

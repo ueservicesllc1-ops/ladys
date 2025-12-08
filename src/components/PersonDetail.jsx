@@ -255,6 +255,34 @@ const PersonDetail = () => {
                 </p>
               </div>
             </div>
+            
+            {person.edad && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-palette-quartz to-palette-gold flex items-center justify-center">
+                  <span className="text-palette-pearl font-bold text-sm">🎂</span>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Edad</p>
+                  <p className="text-gray-800 font-medium">
+                    {person.edad} años
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {person.ocupacion && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-palette-gold to-palette-lavender flex items-center justify-center">
+                  <span className="text-palette-pearl font-bold text-sm">💼</span>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Ocupación</p>
+                  <p className="text-gray-800 font-medium">
+                    {person.ocupacion}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 

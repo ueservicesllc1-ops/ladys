@@ -23,6 +23,8 @@ export const addPerson = async (personData) => {
       apellido: personData.apellido,
       pais: personData.pais,
       ciudad: personData.ciudad,
+      edad: personData.edad || '',
+      ocupacion: personData.ocupacion || '',
       historia: personData.historia || '',
       fotos: [],
       approved: false, // Por defecto no está aprobada
