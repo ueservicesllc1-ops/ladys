@@ -320,10 +320,30 @@ const AdminPanel = () => {
     try {
       setSeeding(true);
 
+      // Lista de apellidos comunes en Ecuador
+      const apellidos = [
+        'Morales', 'Rodríguez', 'García', 'López', 'Fernández', 'Martínez', 'Sánchez', 'Torres', 'Vargas', 'Jiménez',
+        'González', 'Pérez', 'Ramírez', 'Flores', 'Rivera', 'Castro', 'Ortiz', 'Gómez', 'Díaz', 'Herrera',
+        'Mendoza', 'Ramos', 'Silva', 'Cruz', 'Vásquez', 'Moreno', 'Alvarez', 'Romero', 'Medina', 'Guerrero',
+        'Rojas', 'Vega', 'Campos', 'Mora', 'Salazar', 'Villavicencio', 'Paredes', 'Espinoza', 'Cárdenas', 'Aguilar',
+        'Benítez', 'Cordero', 'Delgado', 'Escobar', 'Figueroa', 'Hidalgo', 'Ibarra', 'Jaramillo', 'Lara', 'Navarro'
+      ];
+
+      // Función para obtener dos apellidos aleatorios diferentes
+      const getRandomApellidos = () => {
+        const apellido1 = apellidos[Math.floor(Math.random() * apellidos.length)];
+        let apellido2 = apellidos[Math.floor(Math.random() * apellidos.length)];
+        // Asegurar que sean diferentes
+        while (apellido2 === apellido1) {
+          apellido2 = apellidos[Math.floor(Math.random() * apellidos.length)];
+        }
+        return `${apellido1} ${apellido2}`;
+      };
+
       const fakeLadys = [
         {
           nombre: 'Valentina',
-          apellido: 'Morales',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Pichincha',
           ciudad: 'Quito',
@@ -333,7 +353,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Isabella',
-          apellido: 'Rodríguez',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Guayas',
           ciudad: 'Guayaquil',
@@ -343,7 +363,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Sofía',
-          apellido: 'García',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Azuay',
           ciudad: 'Cuenca',
@@ -353,7 +373,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Camila',
-          apellido: 'López',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Manabí',
           ciudad: 'Manta',
@@ -363,7 +383,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'María',
-          apellido: 'Fernández',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Tungurahua',
           ciudad: 'Ambato',
@@ -373,7 +393,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Daniela',
-          apellido: 'Martínez',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Loja',
           ciudad: 'Loja',
@@ -383,7 +403,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Andrea',
-          apellido: 'Sánchez',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'El Oro',
           ciudad: 'Machala',
@@ -393,7 +413,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Natalia',
-          apellido: 'Torres',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Imbabura',
           ciudad: 'Ibarra',
@@ -403,7 +423,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Gabriela',
-          apellido: 'Vargas',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Chimborazo',
           ciudad: 'Riobamba',
@@ -413,7 +433,7 @@ const AdminPanel = () => {
         },
         {
           nombre: 'Paola',
-          apellido: 'Jiménez',
+          apellido: getRandomApellidos(),
           pais: 'Ecuador',
           provincia: 'Cotopaxi',
           ciudad: 'Latacunga',
