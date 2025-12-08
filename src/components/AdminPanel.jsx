@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Shield, Users, Trash2, Edit, X, Bell, CheckCircle, Eye, Send, UserX } from 'lucide-react';
+import { ArrowLeft, Shield, Users, Trash2, Edit, X, Bell, CheckCircle, Eye, Send, UserX, Database } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDialog } from '../contexts/DialogContext';
 import { getPersons } from '../firebase/persons';
-import { doc, deleteDoc, updateDoc, query, where, getDocs, collection } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc, query, where, getDocs, collection, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { getAllTokens } from '../services/pushNotifications';
 
@@ -31,6 +31,7 @@ const AdminPanel = () => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [deletingUserId, setDeletingUserId] = useState(null);
   const [usersCount, setUsersCount] = useState(0);
+  const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -306,6 +307,165 @@ const AdminPanel = () => {
     }
   };
 
+  const generateFakeLadys = async () => {
+    const confirmed = await showConfirm(
+      '¿Estás seguro de crear 10 ladys ficticias? Esto agregará datos de prueba a la base de datos.',
+      'Confirmar Creación'
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setSeeding(true);
+
+      const fakeLadys = [
+        {
+          nombre: 'Valentina',
+          apellido: 'Morales',
+          pais: 'Ecuador',
+          provincia: 'Pichincha',
+          ciudad: 'Quito',
+          edad: '28',
+          ocupacion: 'Diseñadora Gráfica',
+          historia: 'Se descubrió que mantenía una relación paralela con su jefe durante 8 meses. Su pareja encontró mensajes comprometedores en su teléfono mientras ella estaba en la ducha. La relación terminó cuando él confrontó a ambos en una cena de trabajo.'
+        },
+        {
+          nombre: 'Isabella',
+          apellido: 'Rodríguez',
+          pais: 'Ecuador',
+          provincia: 'Guayas',
+          ciudad: 'Guayaquil',
+          edad: '25',
+          ocupacion: 'Estudiante de Medicina',
+          historia: 'Fue vista en múltiples ocasiones con diferentes hombres en lugares públicos. Su novio de 3 años recibió fotos anónimas de ella besando a otro en un bar. Cuando la confrontó, ella admitió que había estado engañándolo desde hacía 6 meses porque sentía que la relación se había vuelto aburrida.'
+        },
+        {
+          nombre: 'Sofía',
+          apellido: 'García',
+          pais: 'Ecuador',
+          provincia: 'Azuay',
+          ciudad: 'Cuenca',
+          edad: '32',
+          ocupacion: 'Contadora',
+          historia: 'Mantuvo una relación extramatrimonial con un compañero de trabajo durante más de un año. Su esposo descubrió la infidelidad cuando revisó el historial de ubicaciones de su teléfono y encontró que había estado en hoteles los fines de semana que decía estar visitando a su familia. La situación se complicó cuando el amante también estaba casado, creando un escándalo en su círculo social y laboral.'
+        },
+        {
+          nombre: 'Camila',
+          apellido: 'López',
+          pais: 'Ecuador',
+          provincia: 'Manabí',
+          ciudad: 'Manta',
+          edad: '23',
+          ocupacion: 'Influencer',
+          historia: 'Engañó a su pareja con su mejor amigo. La relación secreta duró 4 meses hasta que un amigo en común los vio juntos en un restaurante y le contó a su novio. La traición fue doble: no solo lo engañó, sino que fue con alguien cercano a ambos.'
+        },
+        {
+          nombre: 'María',
+          apellido: 'Fernández',
+          pais: 'Ecuador',
+          provincia: 'Tungurahua',
+          ciudad: 'Ambato',
+          edad: '30',
+          ocupacion: 'Profesora',
+          historia: 'Tuvo múltiples aventuras durante su relación de 5 años. Su pareja sospechaba pero nunca tuvo pruebas hasta que encontró una aplicación de citas en su teléfono con perfiles activos. Al investigar más, descubrió que había estado usando aplicaciones de citas durante los últimos 2 años, manteniendo encuentros casuales mientras vivían juntos.'
+        },
+        {
+          nombre: 'Daniela',
+          apellido: 'Martínez',
+          pais: 'Ecuador',
+          provincia: 'Loja',
+          ciudad: 'Loja',
+          edad: '27',
+          ocupacion: 'Enfermera',
+          historia: 'Se descubrió que mantenía una relación con su ex mientras estaba comprometida. Su prometido encontró mensajes de texto románticos y fotos íntimas en su computadora. La boda se canceló una semana antes de la fecha programada cuando él confrontó a ambos.'
+        },
+        {
+          nombre: 'Andrea',
+          apellido: 'Sánchez',
+          pais: 'Ecuador',
+          provincia: 'El Oro',
+          ciudad: 'Machala',
+          edad: '29',
+          ocupacion: 'Abogada',
+          historia: 'Fue infiel durante un viaje de trabajo. Su pareja descubrió la infidelidad cuando vio fotos en redes sociales de ella en eventos con otro hombre durante una conferencia. Al regresar, él notó cambios en su comportamiento y al revisar sus mensajes encontró conversaciones comprometedoras que confirmaron sus sospechas.'
+        },
+        {
+          nombre: 'Natalia',
+          apellido: 'Torres',
+          pais: 'Ecuador',
+          provincia: 'Imbabura',
+          ciudad: 'Ibarra',
+          edad: '26',
+          ocupacion: 'Psicóloga',
+          historia: 'Mantuvo una relación paralela con un paciente durante varios meses, violando códigos éticos profesionales. Su pareja descubrió la situación cuando encontró facturas de hoteles y regalos caros que no podía explicar. La situación se complicó aún más cuando el paciente comenzó a acosarla después de que ella intentó terminar la relación.'
+        },
+        {
+          nombre: 'Gabriela',
+          apellido: 'Vargas',
+          pais: 'Ecuador',
+          provincia: 'Chimborazo',
+          ciudad: 'Riobamba',
+          edad: '31',
+          ocupacion: 'Arquitecta',
+          historia: 'Engañó a su esposo con un cliente durante un proyecto de construcción. La relación comenzó como profesional pero se volvió personal durante las visitas al sitio de construcción. Su esposo descubrió la infidelidad cuando revisó los registros de llamadas y encontró conversaciones frecuentes a altas horas de la noche. La situación afectó no solo su matrimonio sino también su reputación profesional.'
+        },
+        {
+          nombre: 'Paola',
+          apellido: 'Jiménez',
+          pais: 'Ecuador',
+          provincia: 'Cotopaxi',
+          ciudad: 'Latacunga',
+          edad: '24',
+          ocupacion: 'Estudiante',
+          historia: 'Tuvo una aventura de una noche que se convirtió en una relación de varios meses. Su novio descubrió la infidelidad cuando encontró mensajes en su teléfono de un número desconocido. Al investigar, descubrió que había estado viendo a esta persona regularmente, mintiendo sobre sus actividades y creando excusas elaboradas para justificar sus ausencias.'
+        }
+      ];
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const lady of fakeLadys) {
+        try {
+          await addDoc(collection(db, 'persons'), {
+            nombre: lady.nombre,
+            apellido: lady.apellido,
+            pais: lady.pais,
+            provincia: lady.provincia,
+            ciudad: lady.ciudad,
+            edad: lady.edad,
+            ocupacion: lady.ocupacion,
+            historia: lady.historia,
+            fotos: [],
+            approved: false,
+            conocidaSi: 0,
+            conocidaNo: 0,
+            createdAt: Timestamp.now(),
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Error agregando ${lady.nombre}:`, error);
+          errorCount++;
+        }
+      }
+
+      await showAlert(
+        `Se crearon ${successCount} ladys ficticias exitosamente${errorCount > 0 ? `. ${errorCount} errores.` : '.'}`,
+        'Ladys Creadas',
+        'success'
+      );
+      
+      // Recargar la lista
+      await loadPersons();
+    } catch (error) {
+      console.error('Error generando ladys ficticias:', error);
+      await showAlert('Error al crear las ladys ficticias', 'Error', 'error');
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   if (!user) {
     return null;
   }
@@ -458,7 +618,30 @@ const AdminPanel = () => {
           </div>
 
           {/* Botones de acción */}
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-5 gap-2">
+            <motion.button
+              onClick={generateFakeLadys}
+              disabled={seeding}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-palette-gold to-palette-lavender text-palette-graphite py-3 rounded-xl font-medium shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {seeding ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-palette-graphite border-t-transparent rounded-full"
+                  />
+                  <span>Creando...</span>
+                </>
+              ) : (
+                <>
+                  <Database className="w-4 h-4" />
+                  <span>Seed</span>
+                </>
+              )}
+            </motion.button>
             <motion.button
               onClick={() => setShowPushModal(true)}
               whileHover={{ scale: 1.05 }}
